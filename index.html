@@ -366,6 +366,7 @@
     letter-spacing: 0.5px;
   }
   .inline-edit-input:focus { border-color: var(--red); }
+  select.inline-edit-input { cursor: pointer; }
   .inline-edit-confirm {
     font-size: 11px;
     padding: 3px 8px;
@@ -582,6 +583,69 @@
     from { opacity: 0; transform: translateY(-6px); }
     to { opacity: 1; transform: translateY(0); }
   }
+
+  /* ── TABS ── */
+  .tab-bar {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+    position: relative;
+  }
+  .tab-bar::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+  .tab-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-dim);
+    padding: 12px 22px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    margin-bottom: -1px;
+    position: relative;
+    z-index: 1;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.tab-active { color: var(--text-bright); border-bottom-color: var(--red); }
+
+  /* ── INSPIRATION SCREEN ── */
+  #inspiration-screen { animation: fadeIn 0.3s ease; }
+
+  .insp-grid {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .insp-words  { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  .insp-actions { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+
+  .insp-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+  }
+  .insp-num {
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    min-width: 18px;
+  }
+  .insp-val { font-size: 12px; }
+  .insp-words  .insp-val { color: var(--red-bright); letter-spacing: 0.5px; }
+  .insp-actions .insp-val { color: var(--gold-bright); }
 </style>
 </head>
 <body>
@@ -593,6 +657,12 @@
 </header>
 
 <main>
+
+  <!-- ── TAB BAR ── -->
+  <div class="tab-bar">
+    <button class="tab-btn tab-active" id="tab-game" onclick="switchTab('game')">Game</button>
+    <button class="tab-btn" id="tab-inspiration" onclick="switchTab('inspiration')">Word Pool</button>
+  </div>
 
   <!-- ── SETUP SCREEN ── -->
   <div id="setup-screen">
@@ -666,6 +736,9 @@
 
   </div>
 
+  <!-- ── INSPIRATION SCREEN ── -->
+  <div id="inspiration-screen" style="display:none;"></div>
+
 </main>
 
 <script>
@@ -717,6 +790,60 @@ const ACTIONS = [
 let players = [];
 let assignments = [];
 let diagramOpen = false;
+let inspirationReady = false;
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+
+function switchTab(tab) {
+  document.getElementById('tab-game').classList.toggle('tab-active', tab === 'game');
+  document.getElementById('tab-inspiration').classList.toggle('tab-active', tab === 'inspiration');
+
+  const insp  = document.getElementById('inspiration-screen');
+  const setup = document.getElementById('setup-screen');
+  const game  = document.getElementById('game-screen');
+
+  if (tab === 'inspiration') {
+    setup.style.display = 'none';
+    game.style.display  = 'none';
+    insp.style.display  = 'block';
+    if (!inspirationReady) renderInspiration();
+  } else {
+    insp.style.display  = 'none';
+    if (assignments.length > 0) {
+      setup.style.display = 'none';
+      game.style.display  = 'block';
+    } else {
+      setup.style.display = 'block';
+      game.style.display  = 'none';
+    }
+  }
+}
+
+function renderInspiration() {
+  inspirationReady = true;
+
+  const wordsHtml = WORDS.map((w, i) =>
+    `<div class="insp-item">
+      <span class="insp-num">${String(i + 1).padStart(2, '0')}</span>
+      <span class="insp-val">"${escHtml(w)}"</span>
+    </div>`
+  ).join('');
+
+  const actionsHtml = ACTIONS.map((a, i) =>
+    `<div class="insp-item">
+      <span class="insp-num">${String(i + 1).padStart(2, '0')}</span>
+      <span class="insp-val">${escHtml(a)}</span>
+    </div>`
+  ).join('');
+
+  document.getElementById('inspiration-screen').innerHTML = `
+    <div class="section-label">Kill Words</div>
+    <div class="insp-grid insp-words">${wordsHtml}</div>
+    <hr class="divider">
+    <div class="section-label">Kill Actions</div>
+    <div class="insp-grid insp-actions">${actionsHtml}</div>
+  `;
+}
 
 // ── SETUP ────────────────────────────────────────────────────────────────────
 
@@ -919,7 +1046,20 @@ function renderCards() {
       <div class="assignment-card ${a.revealed ? 'revealed' : ''} ${a.isNew ? 'new-agent' : ''}"
            id="card-${i}" onclick="revealCard(event, ${i})">
         <div class="card-header">
-          <span class="card-agent">${escHtml(a.name)}</span>
+          <div style="flex:1;min-width:0;">
+            <div class="editable-wrap" id="name-display-${i}">
+              <span class="card-agent" id="name-text-${i}">${escHtml(a.name)}</span>
+              <button class="edit-pencil" onclick="startEdit(event,${i},'name')" title="Edit name">✎</button>
+            </div>
+            <div id="name-edit-${i}" style="display:none;">
+              <div class="editable-wrap">
+                <input class="inline-edit-input" id="name-input-${i}" value="${escHtml(a.name)}" maxlength="24"
+                  onclick="event.stopPropagation()"
+                  onkeydown="handleEditKey(event,${i},'name')" />
+                <button class="inline-edit-confirm" onclick="confirmEdit(event,${i},'name')">✓</button>
+              </div>
+            </div>
+          </div>
           <span class="${a.isNew ? 'card-badge-new' : 'card-badge'}">${a.isNew ? 'NEW' : 'AGENT'}</span>
         </div>
         <div class="card-locked">
@@ -929,7 +1069,22 @@ function renderCards() {
         <div class="card-body card-content">
           <div class="assignment-row">
             <div class="assignment-label">Target</div>
-            <div class="assignment-value">${escHtml(a.target)}</div>
+            <div class="assignment-value">
+              <div class="editable-wrap">
+                <span id="target-text-${i}">${escHtml(a.target)}</span>
+                <button class="edit-pencil" onclick="startEdit(event,${i},'target')" title="Edit target">✎</button>
+              </div>
+              <div id="target-edit-${i}" style="display:none;">
+                <div class="editable-wrap" style="margin-top:4px;">
+                  <select class="inline-edit-input" id="target-input-${i}"
+                    onclick="event.stopPropagation()"
+                    onkeydown="handleEditKey(event,${i},'target')">
+                    ${targetOptionsHtml(i, a.target)}
+                  </select>
+                  <button class="inline-edit-confirm" onclick="confirmEdit(event,${i},'target')">✓</button>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="assignment-row">
             <div class="assignment-label">Kill word</div>
@@ -992,36 +1147,75 @@ function hideCard(e, i) {
   card.classList.remove('revealed');
 }
 
+function targetOptionsHtml(agentIdx, currentTarget) {
+  return assignments
+    .filter(a => !a.eliminated && a.name !== assignments[agentIdx].name)
+    .map(a => `<option value="${escHtml(a.name)}"${a.name === currentTarget ? ' selected' : ''}>${escHtml(a.name)}</option>`)
+    .join('');
+}
+
 function startEdit(e, i, field) {
   e.stopPropagation();
-  // Hide display, show input
   document.getElementById(`${field}-text-${i}`).parentElement.style.display = 'none';
   const editDiv = document.getElementById(`${field}-edit-${i}`);
   editDiv.style.display = 'block';
   const input = document.getElementById(`${field}-input-${i}`);
   input.focus();
-  input.select();
+  if (typeof input.select === 'function' && input.tagName !== 'SELECT') input.select();
 }
 
 function confirmEdit(e, i, field) {
   e.stopPropagation();
-  const input = document.getElementById(`${field}-input-${i}`);
-  const val = input.value.trim();
+  const inputEl = document.getElementById(`${field}-input-${i}`);
+  const val = inputEl.value.trim();
   if (!val) return;
+
+  if (field === 'name') {
+    if (val === assignments[i].name) {
+      document.getElementById(`name-edit-${i}`).style.display = 'none';
+      document.getElementById(`name-text-${i}`).parentElement.style.display = 'flex';
+      return;
+    }
+    if (assignments.some((a, idx) => idx !== i && a.name === val)) {
+      inputEl.style.borderColor = 'var(--red-bright)';
+      setTimeout(() => { inputEl.style.borderColor = ''; }, 800);
+      return;
+    }
+    const oldName = assignments[i].name;
+    assignments.forEach(a => {
+      if (a.target === oldName) a.target = val;
+      (a.kills || []).forEach(k => { if (k.name === oldName) k.name = val; });
+      if (a.killedBy && a.killedBy.killerName === oldName) a.killedBy.killerName = val;
+    });
+    assignments[i].name = val;
+    renderGame();
+    return;
+  }
+
+  if (field === 'target') {
+    assignments[i].target = val;
+    const textEl = document.getElementById(`target-text-${i}`);
+    textEl.textContent = val;
+    document.getElementById(`target-edit-${i}`).style.display = 'none';
+    textEl.parentElement.style.display = 'flex';
+    const btn = document.querySelector(`#card-${i} .eliminate-btn`);
+    if (btn) btn.textContent = `✕ Eliminate ${val}`;
+    renderDiagram();
+    return;
+  }
+
+  // word / action: fast DOM update, no re-render needed
   assignments[i][field] = val;
-  // Update display text without full re-render (preserves revealed state)
   const textEl = document.getElementById(`${field}-text-${i}`);
   textEl.textContent = field === 'word' ? `"${val}"` : val;
-  // Hide edit row, show display row
   document.getElementById(`${field}-edit-${i}`).style.display = 'none';
   textEl.parentElement.style.display = 'flex';
 }
 
 function handleEditKey(e, i, field) {
   e.stopPropagation();
-  if (e.key === 'Enter') confirmEdit(e, i, field);
+  if (e.key === 'Enter' && field !== 'target') confirmEdit(e, i, field);
   if (e.key === 'Escape') {
-    // Cancel — restore original display
     document.getElementById(`${field}-edit-${i}`).style.display = 'none';
     document.getElementById(`${field}-text-${i}`).parentElement.style.display = 'flex';
   }
