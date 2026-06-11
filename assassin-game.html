@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPERATION: ASSASSIN</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #181818;
+    --border: #2a2a2a;
+    --border2: #3a3a3a;
+    --red: #c0392b;
+    --red-dim: #7a1f16;
+    --red-bright: #e74c3c;
+    --gold: #b8960c;
+    --gold-bright: #f0c30f;
+    --text: #d4cfc5;
+    --text-dim: #7a7570;
+    --text-bright: #f0ebe0;
+    --mono: 'Share Tech Mono', monospace;
+    --serif: 'Special Elite', cursive;
+    --sans: 'Oswald', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 24px 40px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+  }
+  .header-title {
+    font-family: var(--serif);
+    font-size: 28px;
+    color: var(--text-bright);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+  .header-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .header-stamp {
+    margin-left: auto;
+    font-family: var(--serif);
+    font-size: 13px;
+    color: var(--red-dim);
+    border: 2px solid var(--red-dim);
+    padding: 4px 10px;
+    letter-spacing: 2px;
+    transform: rotate(-2deg);
+    opacity: 0.7;
+  }
+
+  /* ── LAYOUT ── */
+  main { max-width: 1100px; margin: 0 auto; padding: 40px; }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── SETUP SCREEN ── */
+  #setup-screen { animation: fadeIn 0.3s ease; }
+
+  .setup-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 32px;
+    max-width: 560px;
+  }
+  .setup-box h2 {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+
+  .name-input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text-bright);
+    font-family: var(--mono);
+    font-size: 14px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { border-color: var(--red); }
+  input[type="text"]::placeholder { color: var(--text-dim); }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text);
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--text-dim); color: var(--text-bright); }
+  .btn:active { transform: scale(0.98); }
+
+  .btn-primary { border-color: var(--red); color: var(--red-bright); }
+  .btn-primary:hover { background: var(--red); color: var(--text-bright); border-color: var(--red); }
+
+  .btn-danger { border-color: var(--red-dim); color: var(--red-dim); font-size: 11px; padding: 6px 10px; }
+  .btn-danger:hover { background: var(--red-dim); color: var(--text-bright); }
+
+  .btn-gold { border-color: var(--gold); color: var(--gold-bright); }
+  .btn-gold:hover { background: var(--gold); color: #000; }
+
+  .btn-ghost { border-color: var(--border); color: var(--text-dim); font-size: 11px; padding: 6px 12px; }
+  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+
+  #player-list { margin-bottom: 20px; }
+  .player-chip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    margin-bottom: 6px;
+    background: var(--bg3);
+    animation: slideIn 0.2s ease;
+  }
+  .player-chip-name {
+    font-size: 14px;
+    color: var(--text-bright);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .player-chip-name::before { content: '▸'; color: var(--red-dim); font-size: 10px; }
+
+  .min-warning { font-size: 11px; color: var(--text-dim); margin-top: 8px; }
+
+  /* ── GAME SCREEN ── */
+  #game-screen { display: none; animation: fadeIn 0.4s ease; }
+
+  .game-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .game-stat { font-size: 11px; color: var(--text-dim); letter-spacing: 2px; }
+  .game-stat span { color: var(--text-bright); font-size: 16px; display: block; margin-top: 2px; }
+
+  .game-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+  /* ── ADD AGENT PANEL (in-game) ── */
+  .add-agent-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    margin-bottom: 28px;
+    display: none;
+    animation: fadeIn 0.2s ease;
+  }
+  .add-agent-panel.open { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .add-agent-panel input { flex: 1; min-width: 160px; }
+  .add-agent-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-right: 4px;
+  }
+
+  /* ── ASSIGNMENT CARDS ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 40px;
+  }
+
+  .assignment-card {
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+  .assignment-card:hover:not(.eliminated) { border-color: var(--border2); }
+  .assignment-card.eliminated { opacity: 0.3; pointer-events: none; }
+  .assignment-card.new-agent { border-color: var(--gold); animation: fadeIn 0.4s ease; }
+
+  .card-header {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .card-agent {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-bright);
+  }
+  .card-badge { font-size: 9px; letter-spacing: 2px; color: var(--red); border: 1px solid var(--red-dim); padding: 2px 6px; }
+  .card-badge-new { font-size: 9px; letter-spacing: 2px; color: var(--gold-bright); border: 1px solid var(--gold); padding: 2px 6px; }
+
+  .card-body { padding: 14px; }
+
+  .card-locked {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 14px;
+    gap: 8px;
+  }
+  .lock-icon { font-size: 24px; color: var(--text-dim); }
+  .lock-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); }
+
+  .card-content { display: none; }
+  .assignment-card.revealed .card-locked { display: none; }
+  .assignment-card.revealed .card-content { display: block; }
+  .assignment-card.revealed { border-color: var(--red-dim); }
+
+  .assignment-row { margin-bottom: 12px; }
+  .assignment-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--red); margin-bottom: 3px; }
+  .assignment-value { font-size: 13px; color: var(--text-bright); line-height: 1.4; }
+
+  .card-foot {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .eliminate-btn {
+    flex: 1;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 7px 6px;
+    border: 1px solid var(--red-dim);
+    background: transparent;
+    color: var(--red-dim);
+    cursor: pointer;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .eliminate-btn:hover { background: var(--red-dim); color: var(--text-bright); }
+
+  .hide-btn {
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 7px 10px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .hide-btn:hover { border-color: var(--text-dim); color: var(--text); }
+
+  /* ── INLINE EDIT ── */
+  .editable-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 22px;
+  }
+  .edit-pencil {
+    font-size: 11px;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 2px 4px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    line-height: 1;
+    background: none;
+    font-family: var(--mono);
+  }
+  .edit-pencil:hover { color: var(--text); border-color: var(--border2); }
+
+  .inline-edit-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--red-dim);
+    color: var(--text-bright);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 3px 8px;
+    outline: none;
+    min-width: 0;
+    letter-spacing: 0.5px;
+  }
+  .inline-edit-input:focus { border-color: var(--red); }
+  .inline-edit-confirm {
+    font-size: 11px;
+    padding: 3px 8px;
+    border: 1px solid var(--red-dim);
+    background: transparent;
+    color: var(--red-bright);
+    cursor: pointer;
+    font-family: var(--mono);
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .inline-edit-confirm:hover { background: var(--red-dim); color: var(--text-bright); }
+
+  .eliminated-stamp {
+    display: none;
+    position: absolute;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .assignment-card.eliminated .eliminated-stamp { display: flex; }
+  .stamp-text {
+    font-family: var(--serif);
+    font-size: 28px;
+    color: var(--red);
+    border: 3px solid var(--red);
+    padding: 6px 14px;
+    transform: rotate(-15deg);
+    opacity: 0.5;
+    letter-spacing: 4px;
+  }
+
+  /* ── DIAGRAM ── */
+  .diagram-section { margin-bottom: 40px; }
+
+  .diagram-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    user-select: none;
+  }
+  .diagram-toggle:hover { border-color: var(--border2); }
+
+  .diagram-toggle-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--red);
+  }
+  .diagram-toggle-right {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toggle-chevron {
+    display: inline-block;
+    transition: transform 0.25s ease;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+  .toggle-chevron.open { transform: rotate(180deg); }
+
+  .diagram-body {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 24px;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.35s ease, padding 0.35s ease;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .diagram-body.open {
+    max-height: 700px;
+    padding: 24px;
+  }
+
+  #diagram-svg { width: 100%; display: block; }
+
+  /* ── WINNER BANNER ── */
+  #winner-banner {
+    display: none;
+    background: var(--bg2);
+    border: 1px solid var(--gold);
+    padding: 32px;
+    text-align: center;
+    margin-bottom: 32px;
+    animation: fadeIn 0.5s ease;
+  }
+  #winner-banner h2 { font-family: var(--serif); font-size: 32px; color: var(--gold-bright); letter-spacing: 6px; text-transform: uppercase; margin-bottom: 8px; }
+  #winner-banner p { font-size: 12px; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">Operation: Assassin</div>
+  <div class="header-sub">/ Field Assignment System</div>
+  <div class="header-stamp">Top Secret</div>
+</header>
+
+<main>
+
+  <!-- ── SETUP SCREEN ── -->
+  <div id="setup-screen">
+    <div class="section-label">Agent Roster</div>
+    <div class="setup-box">
+      <h2>Register field agents</h2>
+      <div class="name-input-row">
+        <input type="text" id="name-input" placeholder="Enter agent name..." maxlength="24" autocomplete="off" />
+        <button class="btn btn-primary" onclick="addPlayer()">Add</button>
+      </div>
+      <div id="player-list"></div>
+      <div class="min-warning" id="min-warning"></div>
+      <br>
+      <button class="btn btn-primary" onclick="startGame()" style="width:100%;padding:14px;font-size:13px;letter-spacing:3px;">
+        ▶ &nbsp; Deploy Assignments
+      </button>
+    </div>
+  </div>
+
+  <!-- ── GAME SCREEN ── -->
+  <div id="game-screen">
+
+    <div id="winner-banner">
+      <h2 id="winner-name"></h2>
+      <p>Last agent standing — mission complete</p>
+    </div>
+
+    <div class="game-top">
+      <div style="display:flex;gap:32px;flex-wrap:wrap;">
+        <div class="game-stat">Active Agents <span id="stat-active">0</span></div>
+        <div class="game-stat">Eliminated <span id="stat-elim">0</span></div>
+        <div class="game-stat">Total Agents <span id="stat-total">0</span></div>
+      </div>
+      <div class="game-actions">
+        <button class="btn" onclick="toggleAddAgent()" id="add-agent-btn">+ &nbsp; Add Agent</button>
+        <button class="btn btn-gold" onclick="reshuffle()">↺ &nbsp; Reshuffle</button>
+        <button class="btn" onclick="resetGame()">✕ &nbsp; New Game</button>
+      </div>
+    </div>
+
+    <!-- Add agent panel (in-game) -->
+    <div class="add-agent-panel" id="add-agent-panel">
+      <span class="add-agent-label">New agent:</span>
+      <input type="text" id="ingame-name-input" placeholder="Enter name..." maxlength="24" autocomplete="off" />
+      <button class="btn btn-primary" onclick="addAgentInGame()">Deploy</button>
+      <button class="btn btn-ghost" onclick="toggleAddAgent()">Cancel</button>
+      <span id="add-agent-msg" style="font-size:11px;color:var(--text-dim);letter-spacing:1px;"></span>
+    </div>
+
+    <div class="section-label">Assignments — tap to reveal</div>
+    <div class="cards-grid" id="cards-grid"></div>
+
+    <hr class="divider">
+
+    <!-- Diagram with toggle -->
+    <div class="diagram-section">
+      <div class="diagram-toggle" onclick="toggleDiagram()" id="diagram-toggle">
+        <div class="diagram-toggle-left">
+          ◈ &nbsp; Target Network
+        </div>
+        <div class="diagram-toggle-right">
+          <span id="diagram-toggle-label">Show</span>
+          <span class="toggle-chevron" id="diagram-chevron">▾</span>
+        </div>
+      </div>
+      <div class="diagram-body" id="diagram-body">
+        <svg id="diagram-svg" viewBox="0 0 600 600"></svg>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+
+const WORDS = [
+  'crispy','soggy','wobbly','murky','peckish','gloomy','drizzle','musty','bleak','crumble',
+  'lanky','grumpy','hollow','bother','reckon','stodgy','clammy','rickety','tattered','smudge',
+  'frumpy','dingy','lumpy','grimy','stuffy','rattled','parched','splotchy','scruffy','craggy',
+  'tepid','watery','fusty','grubby','tatty','drowsy','frothy','spongy','smoggy','wilted',
+  'crinkled','squelchy','frazzled','bleary','curdled','mottled','woozy','bristly','patchy','stale'
+];
+
+const ACTIONS = [
+  'take a selfie',
+  'click a pen',
+  'pull out a chair',
+  'open a bottle',
+  'knock on wood',
+  'fold your arms',
+  'look out a window',
+  'pick up your phone',
+  'pour a drink',
+  'open a drawer',
+  'put something in the bin',
+  'flip a light switch',
+  'tap on a table',
+  'blow on your hands',
+  'smell something',
+  'wipe down a surface',
+  'snap your fingers',
+  'shake someone\'s hand',
+  'lean against a wall',
+  'close a door behind you',
+  'take a photo of something (not a selfie)',
+  'sit down on a chair',
+  'stand up from a chair',
+  'open a window',
+  'turn off a light',
+  'pick something up off the floor',
+  'refill a glass of water',
+  'open the fridge',
+  'clap your hands',
+  'wave goodbye to someone'
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+
+let players = [];
+let assignments = [];
+let diagramOpen = false;
+
+// ── SETUP ────────────────────────────────────────────────────────────────────
+
+const nameInput = document.getElementById('name-input');
+nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') addPlayer(); });
+
+document.getElementById('ingame-name-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addAgentInGame();
+  if (e.key === 'Escape') toggleAddAgent();
+});
+
+function addPlayer() {
+  const val = nameInput.value.trim();
+  if (!val) return;
+  if (players.includes(val)) {
+    nameInput.style.borderColor = 'var(--red)';
+    setTimeout(() => nameInput.style.borderColor = '', 800);
+    return;
+  }
+  players.push(val);
+  nameInput.value = '';
+  renderPlayerList();
+}
+
+function removePlayer(name) {
+  players = players.filter(p => p !== name);
+  renderPlayerList();
+}
+
+function renderPlayerList() {
+  const list = document.getElementById('player-list');
+  const warn = document.getElementById('min-warning');
+  list.innerHTML = players.map(p => `
+    <div class="player-chip">
+      <span class="player-chip-name">${escHtml(p)}</span>
+      <button class="btn btn-danger" onclick="removePlayer(${JSON.stringify(p)})">Remove</button>
+    </div>
+  `).join('');
+  warn.textContent = players.length < 3
+    ? `Minimum 3 agents required (${players.length}/3)`
+    : `${players.length} agent${players.length !== 1 ? 's' : ''} registered`;
+  warn.style.color = players.length < 3 ? 'var(--red-dim)' : 'var(--text-dim)';
+}
+
+// ── GAME START ───────────────────────────────────────────────────────────────
+
+function startGame() {
+  if (players.length < 3) {
+    document.getElementById('min-warning').textContent = '⚠ Need at least 3 agents to start';
+    document.getElementById('min-warning').style.color = 'var(--red-bright)';
+    return;
+  }
+  generateAssignments(players.slice());
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+  diagramOpen = false;
+  renderGame();
+}
+
+function generateAssignments(activePlayers) {
+  const shuffled = shuffle(activePlayers.slice());
+  const usedWords = new Set();
+  const usedActions = new Set();
+  assignments = shuffled.map((name, i) => {
+    const target = shuffled[(i + 1) % shuffled.length];
+    const word = pickUnused(WORDS, usedWords);
+    const action = pickUnused(ACTIONS, usedActions);
+    usedWords.add(word); usedActions.add(action);
+    return { name, target, word, action, eliminated: false, revealed: false, isNew: false };
+  });
+}
+
+function pickUnused(arr, usedSet) {
+  const available = arr.filter(x => !usedSet.has(x));
+  if (!available.length) return arr[Math.floor(Math.random() * arr.length)];
+  return available[Math.floor(Math.random() * available.length)];
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── ADD AGENT IN-GAME ─────────────────────────────────────────────────────────
+
+function toggleAddAgent() {
+  const panel = document.getElementById('add-agent-panel');
+  const btn = document.getElementById('add-agent-btn');
+  const isOpen = panel.classList.contains('open');
+  panel.classList.toggle('open', !isOpen);
+  btn.style.borderColor = isOpen ? '' : 'var(--gold)';
+  btn.style.color = isOpen ? '' : 'var(--gold-bright)';
+  if (!isOpen) {
+    document.getElementById('ingame-name-input').focus();
+    document.getElementById('add-agent-msg').textContent = '';
+  }
+}
+
+function addAgentInGame() {
+  const input = document.getElementById('ingame-name-input');
+  const msg = document.getElementById('add-agent-msg');
+  const val = input.value.trim();
+
+  if (!val) return;
+
+  const allNames = assignments.map(a => a.name);
+  if (allNames.includes(val)) {
+    msg.textContent = '⚠ Agent name already in roster';
+    msg.style.color = 'var(--red-bright)';
+    return;
+  }
+
+  // Get active (non-eliminated) assignments
+  const active = assignments.filter(a => !a.eliminated);
+  if (active.length < 1) {
+    msg.textContent = '⚠ No active agents to insert into';
+    return;
+  }
+
+  // Pick a random active agent to break the chain after
+  const insertAfterIdx = Math.floor(Math.random() * active.length);
+  const insertAfter = active[insertAfterIdx];
+
+  // New agent's target = insertAfter's current target
+  const newTarget = insertAfter.target;
+
+  // insertAfter now targets the new agent
+  const mainIdx = assignments.findIndex(a => a.name === insertAfter.name);
+  assignments[mainIdx].target = val;
+
+  // Pick unique word/action
+  const usedWords = new Set(assignments.map(a => a.word));
+  const usedActions = new Set(assignments.map(a => a.action));
+  const word = pickUnused(WORDS, usedWords);
+  const action = pickUnused(ACTIONS, usedActions);
+
+  assignments.push({ name: val, target: newTarget, word, action, eliminated: false, revealed: false, isNew: true });
+
+  input.value = '';
+  msg.textContent = `✓ ${val} deployed into the field`;
+  msg.style.color = 'var(--text-dim)';
+
+  // Auto-close panel after a moment
+  setTimeout(() => {
+    toggleAddAgent();
+  }, 1200);
+
+  renderGame();
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+
+function renderGame() {
+  updateStats();
+  renderCards();
+  renderDiagram();
+  checkWinner();
+}
+
+function updateStats() {
+  const active = assignments.filter(a => !a.eliminated).length;
+  const elim = assignments.filter(a => a.eliminated).length;
+  document.getElementById('stat-active').textContent = active;
+  document.getElementById('stat-elim').textContent = elim;
+  document.getElementById('stat-total').textContent = assignments.length;
+}
+
+function renderCards() {
+  const grid = document.getElementById('cards-grid');
+  grid.innerHTML = assignments.map((a, i) => `
+    <div class="assignment-card ${a.eliminated ? 'eliminated' : ''} ${a.revealed ? 'revealed' : ''} ${a.isNew && !a.eliminated ? 'new-agent' : ''}"
+         id="card-${i}" onclick="revealCard(event, ${i})">
+      <div class="card-header">
+        <span class="card-agent">${escHtml(a.name)}</span>
+        <span class="${a.isNew ? 'card-badge-new' : 'card-badge'}">${a.isNew ? 'NEW' : 'AGENT'}</span>
+      </div>
+      <div class="card-locked">
+        <div class="lock-icon">⬛</div>
+        <div class="lock-label">Tap to reveal assignment</div>
+      </div>
+      <div class="card-body card-content">
+        <div class="assignment-row">
+          <div class="assignment-label">Target</div>
+          <div class="assignment-value">${escHtml(a.target)}</div>
+        </div>
+        <div class="assignment-row">
+          <div class="assignment-label">Kill word</div>
+          <div class="assignment-value" id="word-display-${i}" style="color:var(--red-bright);font-size:15px;letter-spacing:1px;">
+            <div class="editable-wrap">
+              <span id="word-text-${i}">"${escHtml(a.word)}"</span>
+              ${!a.eliminated ? `<button class="edit-pencil" onclick="startEdit(event,${i},'word')" title="Edit word">✎</button>` : ''}
+            </div>
+            <div id="word-edit-${i}" style="display:none;">
+              <div class="editable-wrap" style="margin-top:4px;">
+                <input class="inline-edit-input" id="word-input-${i}" value="${escHtml(a.word)}" maxlength="40"
+                  onclick="event.stopPropagation()"
+                  onkeydown="handleEditKey(event,${i},'word')" />
+                <button class="inline-edit-confirm" onclick="confirmEdit(event,${i},'word')">✓</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="assignment-row">
+          <div class="assignment-label">Kill action</div>
+          <div class="assignment-value" id="action-display-${i}" style="color:var(--gold-bright);">
+            <div class="editable-wrap">
+              <span id="action-text-${i}">${escHtml(a.action)}</span>
+              ${!a.eliminated ? `<button class="edit-pencil" onclick="startEdit(event,${i},'action')" title="Edit action">✎</button>` : ''}
+            </div>
+            <div id="action-edit-${i}" style="display:none;">
+              <div class="editable-wrap" style="margin-top:4px;">
+                <input class="inline-edit-input" id="action-input-${i}" value="${escHtml(a.action)}" maxlength="60"
+                  onclick="event.stopPropagation()"
+                  onkeydown="handleEditKey(event,${i},'action')" />
+                <button class="inline-edit-confirm" onclick="confirmEdit(event,${i},'action')">✓</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        ${!a.eliminated ? `
+        <div class="card-foot">
+          <button class="eliminate-btn" onclick="eliminatePlayer(event, ${i})">✕ Eliminate ${escHtml(a.target)}</button>
+          <button class="hide-btn" onclick="hideCard(event, ${i})" title="Hide assignment">↩</button>
+        </div>` : ''}
+      </div>
+      <div class="eliminated-stamp"><div class="stamp-text">ELIMINATED</div></div>
+    </div>
+  `).join('');
+}
+
+function revealCard(e, i) {
+  if (assignments[i].eliminated) return;
+  if (assignments[i].revealed) return;
+  assignments[i].revealed = true;
+  const card = document.getElementById(`card-${i}`);
+  card.classList.add('revealed');
+}
+
+function hideCard(e, i) {
+  e.stopPropagation();
+  assignments[i].revealed = false;
+  const card = document.getElementById(`card-${i}`);
+  card.classList.remove('revealed');
+}
+
+function startEdit(e, i, field) {
+  e.stopPropagation();
+  // Hide display, show input
+  document.getElementById(`${field}-text-${i}`).parentElement.style.display = 'none';
+  const editDiv = document.getElementById(`${field}-edit-${i}`);
+  editDiv.style.display = 'block';
+  const input = document.getElementById(`${field}-input-${i}`);
+  input.focus();
+  input.select();
+}
+
+function confirmEdit(e, i, field) {
+  e.stopPropagation();
+  const input = document.getElementById(`${field}-input-${i}`);
+  const val = input.value.trim();
+  if (!val) return;
+  assignments[i][field] = val;
+  // Update display text without full re-render (preserves revealed state)
+  const textEl = document.getElementById(`${field}-text-${i}`);
+  textEl.textContent = field === 'word' ? `"${val}"` : val;
+  // Hide edit row, show display row
+  document.getElementById(`${field}-edit-${i}`).style.display = 'none';
+  textEl.parentElement.style.display = 'flex';
+}
+
+function handleEditKey(e, i, field) {
+  e.stopPropagation();
+  if (e.key === 'Enter') confirmEdit(e, i, field);
+  if (e.key === 'Escape') {
+    // Cancel — restore original display
+    document.getElementById(`${field}-edit-${i}`).style.display = 'none';
+    document.getElementById(`${field}-text-${i}`).parentElement.style.display = 'flex';
+  }
+}
+
+function eliminatePlayer(e, cardIndex) {
+  e.stopPropagation();
+  const killer = assignments[cardIndex];
+  const targetName = killer.target;
+  const targetIdx = assignments.findIndex(a => a.name === targetName);
+  if (targetIdx === -1) return;
+  const targetAssignment = assignments[targetIdx];
+  targetAssignment.eliminated = true;
+  killer.target = targetAssignment.target;
+  renderGame();
+}
+
+// ── DIAGRAM ──────────────────────────────────────────────────────────────────
+
+function toggleDiagram() {
+  diagramOpen = !diagramOpen;
+  document.getElementById('diagram-body').classList.toggle('open', diagramOpen);
+  document.getElementById('diagram-chevron').classList.toggle('open', diagramOpen);
+  document.getElementById('diagram-toggle-label').textContent = diagramOpen ? 'Hide' : 'Show';
+  if (diagramOpen) renderDiagram();
+}
+
+function renderDiagram() {
+  if (!diagramOpen) return;
+  const svg = document.getElementById('diagram-svg');
+  const active = assignments.filter(a => !a.eliminated);
+  const n = active.length;
+  if (n === 0) { svg.innerHTML = ''; return; }
+
+  const size = 600;
+  const cx = size / 2, cy = size / 2;
+  const radius = Math.min(230, 70 + n * 16);
+  const nodeR = Math.max(26, Math.min(42, 260 / n));
+
+  svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+
+  const defs = `<defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#c0392b" />
+    </marker>
+  </defs>`;
+
+  const positions = active.map((_, i) => {
+    const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+    return { x: cx + radius * Math.cos(angle), y: cy + radius * Math.sin(angle) };
+  });
+
+  let lines = '';
+  active.forEach((a, i) => {
+    const from = positions[i];
+    const targetIdx = active.findIndex(t => t.name === a.target);
+    if (targetIdx === -1) return;
+    const to = positions[targetIdx];
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const ux = dx / dist, uy = dy / dist;
+    const x1 = from.x + ux * (nodeR + 2);
+    const y1 = from.y + uy * (nodeR + 2);
+    const x2 = to.x - ux * (nodeR + 10);
+    const y2 = to.y - uy * (nodeR + 10);
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+    const perp = { x: -(y2 - y1) * 0.15, y: (x2 - x1) * 0.15 };
+    lines += `<path d="M${x1},${y1} Q${mx+perp.x},${my+perp.y} ${x2},${y2}"
+      stroke="#c0392b" stroke-width="1.5" fill="none" stroke-opacity="0.7"
+      marker-end="url(#arrow)" />`;
+  });
+
+  let nodes = '';
+  active.forEach((a, i) => {
+    const { x, y } = positions[i];
+    const nameShort = a.name.length > 10 ? a.name.slice(0, 9) + '…' : a.name;
+    const strokeCol = a.isNew ? '#b8960c' : '#3a3a3a';
+    const ringCol = a.isNew ? '#b8960c' : '#c0392b';
+    nodes += `
+      <circle cx="${x}" cy="${y}" r="${nodeR}" fill="#181818" stroke="${strokeCol}" stroke-width="1" />
+      <circle cx="${x}" cy="${y}" r="${nodeR}" fill="none" stroke="${ringCol}" stroke-width="0.5" stroke-opacity="0.4" />
+      <text x="${x}" y="${y+4}" text-anchor="middle" dominant-baseline="middle"
+        font-family="'Share Tech Mono',monospace" font-size="${nodeR > 34 ? 11 : 10}"
+        fill="#f0ebe0" letter-spacing="0.5">${escHtml(nameShort)}</text>
+    `;
+  });
+
+  svg.innerHTML = defs + lines + nodes;
+}
+
+// ── WINNER CHECK ─────────────────────────────────────────────────────────────
+
+function checkWinner() {
+  const active = assignments.filter(a => !a.eliminated);
+  const banner = document.getElementById('winner-banner');
+  if (active.length === 1) {
+    document.getElementById('winner-name').textContent = active[0].name;
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+// ── RESHUFFLE ────────────────────────────────────────────────────────────────
+
+function reshuffle() {
+  const activePlayers = assignments.filter(a => !a.eliminated).map(a => a.name);
+  const eliminatedNames = assignments.filter(a => a.eliminated).map(a => a.name);
+  generateAssignments(activePlayers);
+  // re-mark any that were eliminated (shouldn't be any in active, but safety)
+  eliminatedNames.forEach(name => {
+    const m = assignments.find(a => a.name === name);
+    if (m) m.eliminated = true;
+  });
+  renderGame();
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────────
+
+function resetGame() {
+  players = [];
+  assignments = [];
+  diagramOpen = false;
+  document.getElementById('player-list').innerHTML = '';
+  document.getElementById('min-warning').textContent = '';
+  document.getElementById('setup-screen').style.display = 'block';
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('winner-banner').style.display = 'none';
+  document.getElementById('add-agent-panel').classList.remove('open');
+  document.getElementById('diagram-body').classList.remove('open');
+  document.getElementById('diagram-chevron').classList.remove('open');
+  document.getElementById('diagram-toggle-label').textContent = 'Show';
+}
+
+// ── UTILS ────────────────────────────────────────────────────────────────────
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+</script>
+</body>
+</html>
